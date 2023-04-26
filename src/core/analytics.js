@@ -65,7 +65,7 @@ import { DeviceModeTransformations } from '../features/core/deviceModeTransforma
  * class responsible for handling core
  * event tracking functionalities
  */
-export class Analytics {
+class Analytics {
   /**
    * Creates an instance of Analytics.
    * @memberof Analytics
@@ -1440,4 +1440,48 @@ function processDataInAnalyticsArray(analytics) {
     }
   }
 }
+
+const instance = new Analytics();
+
+const ready = instance.ready.bind(instance);
+const identify = instance.identify.bind(instance);
+const page = instance.page.bind(instance);
+const track = instance.track.bind(instance);
+const alias = instance.alias.bind(instance);
+const group = instance.group.bind(instance);
+const reset = instance.reset.bind(instance);
+const load = instance.load.bind(instance);
+const initialized = (instance.initialized = true);
+const getUserId = instance.getUserId.bind(instance);
+const getSessionId = instance.getSessionId.bind(instance);
+const getUserTraits = instance.getUserTraits.bind(instance);
+const getAnonymousId = instance.getAnonymousId.bind(instance);
+const setAnonymousId = instance.setAnonymousId.bind(instance);
+const getGroupId = instance.getGroupId.bind(instance);
+const getGroupTraits = instance.getGroupTraits.bind(instance);
+const startSession = instance.startSession.bind(instance);
+const endSession = instance.endSession.bind(instance);
+const setAuthToken = instance.setAuthToken.bind(instance);
+
+export {
+  initialized,
+  ready,
+  page,
+  track,
+  load,
+  identify,
+  reset,
+  alias,
+  group,
+  getUserId,
+  getSessionId,
+  getUserTraits,
+  getAnonymousId,
+  setAnonymousId,
+  getGroupId,
+  getGroupTraits,
+  startSession,
+  endSession,
+  setAuthToken,
+};
 
