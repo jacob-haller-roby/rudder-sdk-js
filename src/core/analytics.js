@@ -1484,4 +1484,3 @@ export {
   endSession,
   setAuthToken,
 };
-
