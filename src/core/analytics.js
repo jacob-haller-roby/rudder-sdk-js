@@ -104,90 +104,6 @@ export class Analytics {
     this.errorReporting = new ErrorReportingService(logger);
     this.deniedConsentIds = [];
     this.transformationHandler = DeviceModeTransformations;
-
-    /**
-     * parse the given query string into usable Rudder object
-     * @param {*} query
-     */
-    function parseQueryString(query) {
-      const queryDefaults = {
-        trait: 'ajs_trait_',
-        prop: 'ajs_prop_',
-      };
-
-      function getDataFromQueryObj(qObj, dataType) {
-        const data = {};
-        Object.keys(qObj).forEach((key) => {
-          if (key.startsWith(dataType)) {
-            data[key.substr(dataType.length)] = qObj[key];
-          }
-        });
-        return data;
-      }
-
-      const queryObject = parse(query);
-      if (queryObject.ajs_aid) {
-        this.toBeProcessedArray.push(['setAnonymousId', queryObject.ajs_aid]);
-      }
-
-      if (queryObject.ajs_uid) {
-        this.toBeProcessedArray.push([
-          'identify',
-          queryObject.ajs_uid,
-          getDataFromQueryObj(queryObject, queryDefaults.trait),
-        ]);
-      }
-
-      if (queryObject.ajs_event) {
-        this.toBeProcessedArray.push([
-          'track',
-          queryObject.ajs_event,
-          getDataFromQueryObj(queryObject, queryDefaults.prop),
-        ]);
-      }
-    }
-
-    Emitter(this);
-
-    window.addEventListener(
-        'error',
-        (e) => {
-          handleError(e, undefined, instance);
-        },
-        true,
-    );
-
-    const defaultMethod = 'load';
-    const argumentsArray = window.rudderanalytics;
-    const isValidArgsArray = Array.isArray(argumentsArray);
-    let defaultEvent;
-    if (isValidArgsArray) {
-      /**
-       * Iterate the buffered API calls until we find load call and
-       * queue it first for processing
-       */
-      let i = 0;
-      while (i < argumentsArray.length) {
-        if (argumentsArray[i] && argumentsArray[i][0] === defaultMethod) {
-          defaultEvent = argumentsArray[i];
-          argumentsArray.splice(i, 1);
-          break;
-        }
-        i += 1;
-      }
-    }
-
-    // parse querystring of the page url to send events
-    parseQueryString(window.location.search);
-
-    if (isValidArgsArray) argumentsArray.forEach((x) => this.toBeProcessedArray.push(x));
-
-    // Process load method if present in the buffered requests
-    if (defaultEvent && defaultEvent.length > 0) {
-      defaultEvent.shift();
-      this[defaultMethod](...defaultEvent);
-    }
-
   }
 
   /**
@@ -1304,6 +1220,89 @@ export class Analytics {
   load(writeKey, serverUrl, options) {
     // logger.debug("inside load ");
     if (this.loaded) return;
+
+    /**
+     * parse the given query string into usable Rudder object
+     * @param {*} query
+     */
+    function parseQueryString(query) {
+      const queryDefaults = {
+        trait: 'ajs_trait_',
+        prop: 'ajs_prop_',
+      };
+
+      function getDataFromQueryObj(qObj, dataType) {
+        const data = {};
+        Object.keys(qObj).forEach((key) => {
+          if (key.startsWith(dataType)) {
+            data[key.substr(dataType.length)] = qObj[key];
+          }
+        });
+        return data;
+      }
+
+      const queryObject = parse(query);
+      if (queryObject.ajs_aid) {
+        this.toBeProcessedArray.push(['setAnonymousId', queryObject.ajs_aid]);
+      }
+
+      if (queryObject.ajs_uid) {
+        this.toBeProcessedArray.push([
+          'identify',
+          queryObject.ajs_uid,
+          getDataFromQueryObj(queryObject, queryDefaults.trait),
+        ]);
+      }
+
+      if (queryObject.ajs_event) {
+        this.toBeProcessedArray.push([
+          'track',
+          queryObject.ajs_event,
+          getDataFromQueryObj(queryObject, queryDefaults.prop),
+        ]);
+      }
+    }
+
+    Emitter(this);
+
+    window.addEventListener(
+        'error',
+        (e) => {
+          handleError(e, undefined, instance);
+        },
+        true,
+    );
+
+    const defaultMethod = 'load';
+    const argumentsArray = window.rudderanalytics;
+    const isValidArgsArray = Array.isArray(argumentsArray);
+    let defaultEvent;
+    if (isValidArgsArray) {
+      /**
+       * Iterate the buffered API calls until we find load call and
+       * queue it first for processing
+       */
+      let i = 0;
+      while (i < argumentsArray.length) {
+        if (argumentsArray[i] && argumentsArray[i][0] === defaultMethod) {
+          defaultEvent = argumentsArray[i];
+          argumentsArray.splice(i, 1);
+          break;
+        }
+        i += 1;
+      }
+    }
+
+    // parse querystring of the page url to send events
+    parseQueryString(window.location.search);
+
+    if (isValidArgsArray) argumentsArray.forEach((x) => this.toBeProcessedArray.push(x));
+
+    // Process load method if present in the buffered requests
+    if (defaultEvent && defaultEvent.length > 0) {
+      defaultEvent.shift();
+      this[defaultMethod](...defaultEvent);
+    }
 
     // clone options
     const clonedOptions = R.clone(options);
