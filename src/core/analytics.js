@@ -1425,6 +1425,8 @@ class Analytics {
   }
 }
 
+const instance = new Analytics();
+
 function processDataInAnalyticsArray(analytics) {
   if (analytics.toBeProcessedArray.length > 0) {
     while (analytics.toBeProcessedArray.length > 0) {
@@ -1440,8 +1442,6 @@ function processDataInAnalyticsArray(analytics) {
     }
   }
 }
-
-const instance = new Analytics();
 
 const ready = instance.ready.bind(instance);
 const identify = instance.identify.bind(instance);
